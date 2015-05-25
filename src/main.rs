@@ -1,23 +1,35 @@
-extern crate sfml;
+#![deny(
+    unused_allocation,
+    unused_attributes,
+    unused_features,
+    unused_import_braces,
+    unused_parens,
+    unused_must_use,
 
-use sfml::system::Vector2f;
-use sfml::window::{ContextSettings, VideoMode, event, Close};
-use sfml::graphics::{RenderWindow, RenderTarget, CircleShape, Color};
+    bad_style,
+    unused
+)]
+
+extern crate sfml;
+extern crate rand;
+mod scenario;
+
+use sfml::window::{self, ContextSettings, VideoMode, event};
+use sfml::graphics::{RenderWindow, RenderTarget, Color};
+use scenario::Scenario;
 
 fn main() {
     // Create the window of the application
-    let mut window = RenderWindow::new(VideoMode::new_init(800, 600, 32),
-                                       "SFML Example",
-                                       Close,
+    let mut window = RenderWindow::new(VideoMode::new_init(1000, 1000, 32),
+                                       "Simuate Traffic",
+                                       window::Close,
                                        &ContextSettings::default())
                          .expect("Cannot create a new Render Window.");
 
-    // Create a CircleShape
-    let mut circle = CircleShape::new().expect("Error, cannot create ball.");
-    circle.set_radius(30.);
-    circle.set_fill_color(&Color::red());
-    circle.set_position(&Vector2f::new(100., 100.));
+    let mut scenario = Scenario::new()
+        .with_cars(50, "Sedan");
 
+    window.set_framerate_limit(60);
     while window.is_open() {
         // Handle events
         for event in window.events() {
@@ -27,11 +39,9 @@ fn main() {
             }
         }
 
-        // Clear the window
-        window.clear(&Color::new_rgb(0, 200, 200));
-        // Draw the shape
-        window.draw(&circle);
-        // Display things on screen
+        window.clear(&Color::new_rgb(0, 0, 0));
+        scenario.tick();
+        window.draw(&scenario);
         window.display()
     }
 }
