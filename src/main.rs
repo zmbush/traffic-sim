@@ -25,9 +25,10 @@ fn main() {
                                        window::Close,
                                        &ContextSettings::default())
                          .expect("Cannot create a new Render Window.");
+    let mut view = window.get_default_view();
 
     let mut scenario = Scenario::new()
-        .with_cars(50, "Sedan");
+        .with_cars(500, "Sedan");
 
     window.set_framerate_limit(60);
     while window.is_open() {
@@ -35,9 +36,18 @@ fn main() {
         for event in window.events() {
             match event {
                 event::Closed => window.close(),
+                event::MouseWheelMoved { delta, x: _, y: _ } => {
+                    if delta > 0 {
+                        view.zoom(0.9);
+                    } else {
+                        view.zoom(1.1);
+                    }
+                },
                 _             => {/* do nothing */}
             }
         }
+
+        window.set_view(&view);
 
         window.clear(&Color::new_rgb(0, 0, 0));
         scenario.tick();
