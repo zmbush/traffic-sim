@@ -125,7 +125,7 @@ impl Drawable for Car {
         shape.set_fill_color(&self.color);
         shape.set_position(&self.destination);
         shape.set_origin(&Vector2f::new(5., 5.));
-        //target.draw(&shape);
+        target.draw(&shape);
     }
 }
 
@@ -150,12 +150,16 @@ impl Scenario {
     }
 
     pub fn tick(&mut self) {
-        for _ in 0..50 {
+        for _ in 0..100 {
             for i in 0..self.cars.len() {
                 let dest = self.cars[(i+1)%(self.cars.len())].behind(30.);
                 self.cars[i].tick(dest);
             }
         }
+    }
+
+    pub fn shuffle(&mut self) {
+        thread_rng().shuffle(self.cars.as_mut_slice());
     }
 }
 

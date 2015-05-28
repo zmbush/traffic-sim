@@ -10,14 +10,17 @@
     unused
 )]
 
+#![feature(convert)]
+
 extern crate sfml;
 extern crate rand;
 mod scenario;
 
-use sfml::window::{self, ContextSettings, VideoMode, event};
-use sfml::system::Vector2i;
 use sfml::graphics::{RenderWindow, RenderTarget, Color};
+use sfml::system::Vector2i;
+use sfml::window::keyboard::Key;
 use sfml::window::mouse::MouseButton::MouseLeft;
+use sfml::window::{self, ContextSettings, VideoMode, event};
 use scenario::Scenario;
 
 fn main() {
@@ -54,7 +57,7 @@ fn main() {
                     last_x = x;
                     last_y = y;
                 },
-                event::MouseButtonReleased { button: MouseLeft, x: _, y: _ } => dragging = false,
+                event::MouseButtonReleased { button: MouseLeft, .. } => dragging = false,
                 event::MouseMoved { x, y } => {
                     if dragging {
                         let last = window.map_pixel_to_coords_current_view(&Vector2i::new(last_x, last_y));
@@ -66,6 +69,16 @@ fn main() {
                         last_x = x;
                         last_y = y;
                     }
+                },
+                event::KeyPressed { code, .. } => match code {
+                    Key::Escape => {
+                        window.close();
+                        break;
+                    },
+                    Key::Space => {
+                        scenario.shuffle();
+                    },
+                    _ => {}
                 },
                 _             => {/* do nothing */}
             }
