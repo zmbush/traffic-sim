@@ -15,7 +15,9 @@ extern crate rand;
 mod scenario;
 
 use sfml::window::{self, ContextSettings, VideoMode, event};
+use sfml::system::Vector2i;
 use sfml::graphics::{RenderWindow, RenderTarget, Color};
+use sfml::window::mouse::MouseButton::MouseLeft;
 use scenario::Scenario;
 
 fn main() {
@@ -28,7 +30,11 @@ fn main() {
     let mut view = window.get_default_view();
 
     let mut scenario = Scenario::new()
-        .with_cars(500, "Sedan");
+        .with_cars(1000, "Sedan");
+
+    let mut dragging = false;
+    let mut last_x = 0;
+    let mut last_y = 0;
 
     window.set_framerate_limit(60);
     while window.is_open() {
@@ -41,6 +47,24 @@ fn main() {
                         view.zoom(0.9);
                     } else {
                         view.zoom(1.1);
+                    }
+                },
+                event::MouseButtonPressed { button: MouseLeft, x, y } => {
+                    dragging = true;
+                    last_x = x;
+                    last_y = y;
+                },
+                event::MouseButtonReleased { button: MouseLeft, x: _, y: _ } => dragging = false,
+                event::MouseMoved { x, y } => {
+                    if dragging {
+                        let last = window.map_pixel_to_coords_current_view(&Vector2i::new(last_x, last_y));
+                        let current = window.map_pixel_to_coords_current_view(&Vector2i::new(x, y));
+                        let delta = last - current;
+
+                        view.move_(&delta);
+
+                        last_x = x;
+                        last_y = y;
                     }
                 },
                 _             => {/* do nothing */}

@@ -34,6 +34,7 @@ struct Car {
 
     heading: f32,
     name: String,
+    turning_radius: f32,
     color: Color,
 
     driver: Box<Driver>
@@ -46,14 +47,16 @@ impl Car {
     {
         Car {
             location: Vector2f::new(
-              thread_rng().gen_range(0., 1000.),
-              thread_rng().gen_range(0., 1000.)
+              thread_rng().gen_range(0., 10_000.),
+              thread_rng().gen_range(0., 10_000.)
             ),
 
             destination: Vector2f::new(
               thread_rng().gen_range(0., 1000.),
               thread_rng().gen_range(0., 1000.)
             ),
+
+            turning_radius: thread_rng().gen_range(1., 5.),
 
             heading: 0.0,
             name: name.to_string(),
@@ -74,10 +77,9 @@ impl Car {
             let heading_delta = ((target_heading - self.heading) + 180.) % 360. - 180.;
 
             if heading_delta > 0. {
-                // println!("{} {} => {}", 5., heading_delta, f32::min(5., heading_delta));
-                self.heading += f32::min(1., heading_delta);
+                self.heading += f32::min(self.turning_radius, heading_delta);
             } else {
-                self.heading += f32::max(-1., heading_delta);
+                self.heading += f32::max(-self.turning_radius, heading_delta);
             }
 
             self.heading %= 360.;
@@ -148,7 +150,7 @@ impl Scenario {
     }
 
     pub fn tick(&mut self) {
-        for _ in 0..30 {
+        for _ in 0..50 {
             for i in 0..self.cars.len() {
                 let dest = self.cars[(i+1)%(self.cars.len())].behind(30.);
                 self.cars[i].tick(dest);
