@@ -33,7 +33,7 @@ fn main() {
     let mut view = window.get_default_view();
 
     let mut scenario = Scenario::new()
-        .with_cars(1000, "Sedan");
+        .with_cars(500, "Sedan");
 
     let mut dragging = false;
     let mut last_x = 0;
